@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# User Admin Dashboard
 
-## Getting Started
+React + Next.js 기반의 사용자 관리 대시보드입니다.
+- 사용자 목록 조회 / 조건 검색 / 상세보기 모달 / 페이지네이션
+- 사용자 수정 / 삭제
 
-First, run the development server:
+## 환경 변수 .env.local 설정
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+PUBLIC_API_BASE_URL=https://...
+AUTH_KEY=Bearer 
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 설치 및 실행
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+git clone https://github.com/hyunah11/user-admin-dashboard.git
+npm install
+npm run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 주요 폴더 구조
 
-## Learn More
+```bash
+user-admin-dashboard/
+├── app/
+│   ├── page.tsx             # 사용자 목록 페이지
+│   └── api/users/           # Next.js API Routes
+├── components/              # UI 컴포넌트
+├── hooks/                   # React Query 관련 훅
+├── mock/                    # users.json
+├── types/                   # 타입 정의
+```
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## API 명세
+GET /api/users
+- 사용자 리스트
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+GET /api/users/:id
+- 사용자 상세 조회
 
-## Deploy on Vercel
+POST /api/users/:id
+- 사용자 정보 수정
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+DELETE /api/users/:id
+- 사용자 정보 삭제

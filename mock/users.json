@@ -1,0 +1,29 @@
+[
+  {
+    "seq_no": "1",
+    "id": "user1",
+    "name": "테스트1",
+    "email": "hyunah@example.com",
+    "job_rank": "과장",
+    "position": "개발팀",
+    "active": true
+  },
+  {
+    "seq_no": "2",
+    "id": "user2",
+    "name": "테스트2",
+    "email": "test2@example.com",
+    "job_rank": "부장",
+    "position": "QA팀",
+    "active": false
+  },
+  {
+    "seq_no": "3",
+    "id": "user3",
+    "name": "테스트3",
+    "email": "test3@example.com",
+    "job_rank": "사원",
+    "position": "PM팀",
+    "active": true
+  }
+]

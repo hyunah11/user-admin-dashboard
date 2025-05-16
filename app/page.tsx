@@ -1,103 +1,114 @@
-import Image from "next/image";
+'use client'
+
+import { useState } from 'react'
+import { useUserListQuery } from '@/hooks/useUserListQuery'
+import { useDeleteUserMutation } from '@/hooks/useDeleteUserMutation'
+import SearchForm from '@/components/SearchForm'
+import UserDetailModal from '@/components/UserDetailModal'
+import Pagination from '@/components/Pagination'
+import { User } from '@/types/user'
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [searchParams, setSearchParams] = useState({
+    page_index: 1,
+    page_size: 10,
+  })
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+
+  const { data, isLoading, isError } = useUserListQuery(searchParams)
+
+  const deleteMutation = useDeleteUserMutation()
+
+  const handleSearch = (params: Partial<User>) => {
+    setSearchParams({
+      ...searchParams,
+      ...params,
+      page_index: 1, // 검색 시 첫 페이지로
+    })
+  }
+
+  const handlePageChange = (newPage: number) => {
+    setSearchParams((prev) => ({ ...prev, page_index: newPage }))
+  }
+
+  const handlePageSizeChange = (newSize: number) => {
+    setSearchParams({ ...searchParams, page_index: 1, page_size: newSize })
+  }
+
+  const handleDelete = (id: string) => {
+  if (confirm(`정말 삭제하시겠습니까?`)) {
+    deleteMutation.mutate(id)
+  }
+}
+
+  return (
+    <div className="p-6">
+      <h1 className="text-2xl font-bold mb-4">사용자 조회</h1>
+
+      <SearchForm onSearch={handleSearch} />
+
+      {isLoading && <p>로딩 중...</p>}
+      {isError && <p>에러 발생</p>}
+
+      {!isLoading && data && (
+        <>
+        <table className="w-full border">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border px-2 py-1">사용자ID</th>
+              <th className="border px-2 py-1">이름</th>
+              <th className="border px-2 py-1">이메일</th>
+              <th className="border px-2 py-1">직급</th>
+              <th className="border px-2 py-1">활성 상태</th>
+              <th className="border px-2 py-1">상세</th>
+            </tr>
+          </thead>
+          <tbody>
+            {data.data.result_list.map((user) => (
+              <tr key={user.id}>
+                <td className="border px-2 py-1">{user.id}</td>
+                <td className="border px-2 py-1">{user.name}</td>
+                <td className="border px-2 py-1">{user.email}</td>
+                <td className="border px-2 py-1">{user.job_rank}</td>
+                <td className="border px-2 py-1">{user.active ? 'Y' : 'N'}</td>
+                <td className="border px-2 py-1 text-center">
+                  <button
+                    onClick={() => setSelectedUserId(user.id)}
+                    className="text-blue-600 underline hover:text-blue-800"
+                  >
+                    상세보기
+                  </button>
+                </td>
+                <td className="border px-2 py-1 text-center">
+                    <button
+                      onClick={() => handleDelete(user.id)}
+                      className="text-red-500 underline hover:text-red-700"
+                    >
+                      삭제
+                    </button>
+                  </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+          <Pagination
+            pageIndex={searchParams.page_index}
+            pageSize={searchParams.page_size}
+            totalCount={data.data.total_count}
+            onChangePage={handlePageChange}
+            onChangePageSize={handlePageSizeChange}
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        </>
+      )}
+
+      {selectedUserId && (
+        <UserDetailModal
+          userId={selectedUserId}
+          onClose={() => setSelectedUserId(null)}
+        />
+      )}
     </div>
-  );
+  )
 }
