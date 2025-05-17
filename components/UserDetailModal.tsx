@@ -2,9 +2,9 @@
 
 import { useEffect, useState } from 'react'
 import { useUserDetailQuery } from '@/hooks/useUserDetailQuery'
-import { useUpdateUserMutation } from '@/hooks/useUpdateUserMutation'
 import { User } from '@/types/user'
 import { toast } from 'react-toastify'
+import { Box, Button, Modal, Typography, Divider } from '@mui/material'
 
 interface Props {
   userId: string
@@ -71,135 +71,58 @@ export default function UserDetailModal({ userId, onClose }: Props) {
     }
   }, [user?.id])
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
-    if (!editedUser) return
-    setEditedUser((prev) => ({
-      ...prev,
-      [name]: name === 'active' ? value === 'true' : value,
-    }))
-  }
+  if (isLoading || isError || !user) return null
 
-  // ==== 사용자 정보 수정 ====
-  const { mutate: updateUser, isPending } = useUpdateUserMutation(() => {
-    toast.success('수정 완료!')
-    onClose()
-  })
-
-  // 수정 버튼 클릭 시
-  const handleSave = () => {
-    if (!editedUser) {
-      toast.error('수정할 사용자 정보가 없습니다.')
-      return
-    }
-    updateUser(editedUser as User)
-  }
-
-  if (isLoading) return null
-  if (isError || !editedUser) return null
+  const displayField = (label: string, value?: string | boolean) => (
+    <Box display="flex" flexDirection="column" gap={0.5}>
+      <Typography variant="body2" color="textSecondary">
+        {label}
+      </Typography>
+      <Typography variant="body1" fontWeight={500}>
+        {String(value ?? '-')}
+      </Typography>
+      <Divider sx={{ my: 1 }} />
+    </Box>
+  )
 
   return (
-    <div className="fixed inset-0 bg-black/30 flex justify-center items-center z-50">
-      <div className="bg-white p-6 rounded shadow min-w-[400px]">
-        <h2 className="text-xl font-semibold mb-4">사용자 상세 및 수정</h2>
+    <Modal open={true} onClose={onClose}>
+      <Box
+        sx={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          width: 600,
+          maxHeight: '80vh',
+          overflowY: 'auto',
+          bgcolor: 'background.paper',
+          boxShadow: 24,
+          p: 4,
+          borderRadius: 2,
+        }}
+      >
+        <Typography variant="h6" mb={3}>
+          🔎 사용자 상세 정보
+        </Typography>
 
-        <div className="space-y-3">
-          <div className="flex gap-2 items-center">
-            <label className="w-20">ID</label>
-            <input disabled className="border px-2 py-1 w-full bg-gray-100" 
-                   value={editedUser.id || ''} />
-          </div>
+        <Box display="flex" flexDirection="column" gap={1}>
+          {displayField('ID', user.id)}
+          {displayField('이름', user.name)}
+          {displayField('이메일', user.email)}
+          {displayField('직급', user.job_rank)}
+          {displayField('직책', user.position)}
+          {displayField('IP 주소', user.ip_address)}
+          {displayField('가입일', user.join_date)}
+          {displayField('활성화', user.active ? 'Y' : 'N')}
+        </Box>
 
-          <div className="flex gap-2 items-center">
-            <label className="w-20">이름</label>
-            <input
-              name="name"
-              value={editedUser.name || ''}
-              onChange={handleChange}
-              className="border px-2 py-1 w-full"
-            />
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <label className="w-20">이메일</label>
-            <input
-              name="email"
-              value={editedUser.email || ''}
-              onChange={handleChange}
-              className="border px-2 py-1 w-full"
-            />
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <label className="w-20">직급</label>
-            <input
-              name="job_rank"
-              value={editedUser.job_rank || ''}
-              onChange={handleChange}
-              className="border px-2 py-1 w-full"
-            />
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <label className="w-20">직책</label>
-            <input
-              name="position"
-              value={editedUser.position || ''}
-              onChange={handleChange}
-              className="border px-2 py-1 w-full"
-            />
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <label className="w-20">IP 주소</label>
-            <input
-            name="ip_address"
-            value={editedUser.ip_address || ''}
-            onChange={handleChange}
-            className="border px-2 py-1 w-full"
-            />
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <label className="w-20">가입일</label>
-            <input
-            name="join_date"
-            value={editedUser.join_date || ''}
-            onChange={handleChange}
-            className="border px-2 py-1 w-full"
-            />
-          </div>
-
-          <div className="flex gap-2 items-center">
-            <label className="w-20">활성화</label>
-            <select
-            name="active"
-            value={String(editedUser.active)}
-            onChange={(e) =>
-                setEditedUser((prev) => ({
-                ...prev,
-                active: Boolean(e.target.value),
-                }))
-            }
-            className="border px-2 py-1 w-full"
-            >
-            <option value="1">활성</option>
-            <option value="0">비활성</option>
-            </select>
-          </div>
-        </div>
-
-        <div className="mt-6 flex justify-end gap-2">
-          <button onClick={onClose} className="px-4 py-1 border rounded">닫기</button>
-          <button
-            onClick={handleSave}
-            disabled={isPending}
-            className="bg-blue-600 text-white px-4 py-2 rounded"
-            >
-            {isPending ? '저장 중...' : '저장'}
-           </button>
-        </div>
-      </div>
-    </div>
+        <Box display="flex" justifyContent="flex-end" mt={4}>
+          <Button onClick={onClose} variant="outlined">
+            닫기
+          </Button>
+        </Box>
+      </Box>
+    </Modal>
   )
 }

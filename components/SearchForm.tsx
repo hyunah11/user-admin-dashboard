@@ -2,6 +2,7 @@
 
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
+import { Box, Button, FormControl, InputLabel, MenuItem, Select, SelectChangeEvent, TextField } from "@mui/material";
 
 export default function SearchForm() {
   const isStorybook = process.env.STORYBOOK === 'true'
@@ -16,10 +17,22 @@ export default function SearchForm() {
     active: '',
   })
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setForm((prev) => ({ ...prev, [name]: value }))
   }
+
+  const handleSelectChange = (
+    event: SelectChangeEvent<string>
+  ) => {
+    const name = event.target.name;
+    const value = event.target.value;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -37,59 +50,56 @@ export default function SearchForm() {
   }
 
   const handleReset = () => {
-    setForm({ id: '', name: '', email: '', active: '' })
-    router?.push('/?page_index=1&page_size=10')
+    setForm({ id: "", name: "", email: "", active: "" });
+    const params = new URLSearchParams();
+    params.set("page_index", "1");
+    params.set("page_size", searchParams.get("page_size") || "10");
+    router?.push(`/?${params.toString()}`);
   }
 
   return (
-    <form onSubmit={handleSubmit} className="flex flex-wrap gap-2 mb-4 items-end">
-      <input
-        type="text"
+    <Box component="form" onSubmit={handleSubmit} display="flex" gap={2} flexWrap="wrap" mb={3} alignItems="flex-end">
+      <TextField
+        label="사용자 ID"
         name="id"
         value={form.id}
-        onChange={handleChange}
-        placeholder="ID"
-        className="border p-1 rounded"
+        onChange={handleInputChange}
+        size="small"
+        sx={{ bgcolor: 'white' }}
       />
-      <input
-        type="text"
+      <TextField
+        label="이름"
         name="name"
         value={form.name}
-        onChange={handleChange}
-        placeholder="이름"
-        className="border p-1 rounded"
+        onChange={handleInputChange}
+        size="small"
       />
-      <input
-        type="text"
+      <TextField
+        label="Email"
         name="email"
         value={form.email}
-        onChange={handleChange}
-        placeholder="Email"
-        className="border p-1 rounded"
+        onChange={handleInputChange}
+        size="small"
       />
-      <select
-        name="active"
-        value={form.active}
-        onChange={handleChange}
-        className="border p-1 rounded"
-      >
-        <option value="">전체</option>
-        <option value="true">활성</option>
-        <option value="false">비활성</option>
-      </select>
-      <button
-        type="submit"
-        className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
-      >
-        검색
-      </button>
-      <button
-        type="button"
-        onClick={handleReset}
-        className="bg-gray-300 text-black px-3 py-1 rounded hover:bg-gray-400"
-      >
+      <FormControl size="small" sx={{ minWidth: 120 }}>
+        <InputLabel>활성 상태</InputLabel>
+        <Select
+          name="active"
+          value={form.active}
+          onChange={handleSelectChange}
+          label="활성 상태"
+        >
+          <MenuItem value="">전체</MenuItem>
+          <MenuItem value="1">활성</MenuItem>
+          <MenuItem value="0">비활성</MenuItem>
+        </Select>
+      </FormControl>
+      <Button type="submit" variant="contained" color="primary">
+        조회
+      </Button>
+      <Button type="button" onClick={handleReset} variant="outlined">
         초기화
-      </button>
-    </form>
+      </Button>
+    </Box>
   )
 }

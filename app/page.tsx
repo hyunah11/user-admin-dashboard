@@ -5,18 +5,22 @@ import { useState, useMemo } from 'react'
 import { User } from '@/types/user'
 import Skeleton from 'react-loading-skeleton'
 import 'react-loading-skeleton/dist/skeleton.css'
+import { Table,TableBody, TableCell,TableContainer, TableHead, TableRow, Paper, Button } from '@mui/material'
 
 import { useUserListQuery } from '@/hooks/useUserListQuery'
 import { useDeleteUserMutation } from '@/hooks/useDeleteUserMutation'
 import SearchForm from '@/components/SearchForm'
 import Pagination from '@/components/Pagination'
+import UserDetailEditModal from '@/components/UserDetailEditModal'
 import UserDetailModal from '@/components/UserDetailModal'
 
 export default function Home() {
   const router = useRouter()
 
   const searchParams = useSearchParams()
-  const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
+
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);     // 상세 보기
+  const [editTargetUserId, setEditTargetUserId] = useState<string | null>(null); // 수정
 
   const queryParams = useMemo(() => {
     const params: Record<string, string> = {}
@@ -42,7 +46,8 @@ export default function Home() {
 
   return (
     <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">User Admin</h1>
+      <h1 className="text-2xl font-bold mb-4">User Admin Dashboard</h1>
+      <br />
 
       <SearchForm />
 
@@ -66,73 +71,89 @@ export default function Home() {
         <div>로딩 중...</div>
       ) : (
         <>
-        <table className="w-full border">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="border px-2 py-1">IDX</th>
-              <th className="border px-2 py-1">사용자ID</th>
-              <th className="border px-2 py-1">이름</th>
-              <th className="border px-2 py-1">직급</th>
-              <th className="border px-2 py-1">직책</th>
-              <th className="border px-2 py-1">이메일</th>            
-              <th className="border px-2 py-1">활성 상태</th>
-              <th className="border px-2 py-1">상세 보기</th>
-              <th className="border px-2 py-1">삭제</th>
-            </tr>
-          </thead>
-          <tbody>
-            {data?.data?.result_list?.map((user: any, index: number) => (
-            <tr key={user.id} className="text-center">
-              <td className="p-2 border">{index + 1}</td>
-              <td className="p-2 border">{user.id}</td>
-              <td className="p-2 border">{user.name}</td>
-              <td className="p-2 border">{user.job_rank}</td>
-              <td className="p-2 border">{user.position}</td>
-              <td className="p-2 border">{user.email}</td>
-              <td className="p-2 border">
-                {Number(user.active) === 1 ? 'Y' : 'N'}
-              </td>
-              <td className="p-2 border">
-                <button className="text-blue-600 underline"
+        <TableContainer component={Paper} sx={{ marginTop: 4 }}>
+        <Table size="small">
+          <TableHead sx={{ backgroundColor: '#f5f5f5' }}>
+            <TableRow>
+              <TableCell>IDX</TableCell>
+              <TableCell>사용자ID</TableCell>
+              <TableCell>이름</TableCell>
+              <TableCell>직급</TableCell>
+              <TableCell>직책</TableCell>
+              <TableCell>이메일</TableCell>
+              <TableCell>활성 상태</TableCell>
+              <TableCell>상세</TableCell>
+              <TableCell>수정</TableCell>
+              <TableCell>삭제 ⚠️</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+          {data.data.result_list.map((user: any, index: number) => (
+            <TableRow key={user.id}>
+              <TableCell>{index + 1}</TableCell>
+              <TableCell>{user.id}</TableCell>
+              <TableCell>{user.name}</TableCell>
+              <TableCell>{user.job_rank}</TableCell>
+              <TableCell>{user.position}</TableCell>
+              <TableCell>{user.email}</TableCell>
+              <TableCell>{Number(user.active) === 1 ? 'Y' : 'N'}</TableCell>
+              <TableCell>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="inherit"
                   onClick={() => setSelectedUserId(user.id)}
                 >
-                  보기
-                </button>
-              </td>
-              <td className="p-2 border">
-                  <button className="text-red-600 underline"
-                    onClick={() => handleDelete(user.id)}
-                  >
-                    삭제
-                  </button>
-              </td>
-            </tr>
+                  상세보기
+                </Button>
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="primary"
+                  onClick={() => setEditTargetUserId(user.id)}
+                >
+                  수정
+                </Button>
+              </TableCell>
+              <TableCell>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  color="error"
+                  onClick={() => handleDelete(user.id)} 
+                >
+                  삭제
+                </Button>
+              </TableCell>
+            </TableRow>
           ))}
-          </tbody>
-        </table>
+          </TableBody>
+        </Table>
+        </TableContainer>
 
        <Pagination
           pageIndex={Number(queryParams.page_index)}
           pageSize={Number(queryParams.page_size)}
           totalCount={data?.data?.total_count || 0}
-          onChangePage={(newPage) => {
-            const params = new URLSearchParams(searchParams.toString())
-            params.set('page_index', newPage.toString())
-            router.push(`/?${params.toString()}`)
-          }}
-          onChangePageSize={(newSize) => {
-            const params = new URLSearchParams(searchParams.toString())
-            params.set('page_size', newSize.toString())
-            params.set('page_index', '1') // 페이지 크기 바뀌면 첫 페이지로
-            router.push(`/?${params.toString()}`)
-          }}
-      />
+        />
 
         </>
       )}
 
       {selectedUserId && (
-        <UserDetailModal userId={selectedUserId} onClose={() => setSelectedUserId(null)} />
+        <UserDetailModal 
+          userId={selectedUserId} 
+          onClose={() => setSelectedUserId(null)} 
+        />
+      )}
+
+      {editTargetUserId && (
+        <UserDetailEditModal
+          userId={editTargetUserId}
+          onClose={() => setEditTargetUserId(null)}
+        />
       )}
     </div>
   )
