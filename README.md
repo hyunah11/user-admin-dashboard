@@ -160,3 +160,9 @@ user-admin-dashboard/
   }
 }
 ```
+
+<br> 
+
+## Storybook 📘
+- UI 컴포넌트 테스트 환경 구축
+- 실행: `npm run storybook`

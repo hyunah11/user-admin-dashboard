@@ -4,7 +4,9 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
 export default function SearchForm() {
-  const router = useRouter()
+  const isStorybook = process.env.STORYBOOK === 'true'
+  const router = !isStorybook ? useRouter() : null
+
   const searchParams = useSearchParams()
 
   const [form, setForm] = useState({
@@ -31,12 +33,12 @@ export default function SearchForm() {
     if (form.email) params.set('email', form.email)
     if (form.active) params.set('active', form.active)
 
-    router.push(`/?${params.toString()}`)
+    router?.push(`/?${params.toString()}`)
   }
 
   const handleReset = () => {
     setForm({ id: '', name: '', email: '', active: '' })
-    router.push('/?page_index=1&page_size=10')
+    router?.push('/?page_index=1&page_size=10')
   }
 
   return (

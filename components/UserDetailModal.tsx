@@ -12,8 +12,27 @@ interface Props {
 }
 
 export default function UserDetailModal({ userId, onClose }: Props) {
-  const { data: user, isLoading, isError, isSuccess } = useUserDetailQuery(userId)
+  //const { data: user, isLoading, isError, isSuccess } = useUserDetailQuery(userId)
   const [editedUser, setEditedUser] = useState<Partial<User>>({})
+
+  const isStorybook = process.env.STORYBOOK === 'true'
+  const { data: user, isLoading, isError, isSuccess } = isStorybook
+    ? {
+        data: {
+          id: 'storybook-user',
+          name: '스토리북',
+          email: 'storybook@example.com',
+          job_rank: '과장',
+          position: '팀장',
+          active: true,
+          ip_address: '127.0.0.1',
+          join_date: '2025-05-18',
+        },
+        isLoading: false,
+        isError: false,
+        isSuccess: true,
+      }
+    : useUserDetailQuery(userId)
 
   // 사용자 상세 조회 API - 응답 지연
   useEffect(() => {
@@ -27,7 +46,7 @@ export default function UserDetailModal({ userId, onClose }: Props) {
     return () => clearTimeout(timeout)
   }, [isSuccess, isError])
 
-  // 사용자 상세 조회 API -에러 발생
+  // 사용자 상세 조회 API - 에러 발생
   useEffect(() => {
     if (isError) {
       toast.error('사용자 정보를 불러올 수 없습니다.')

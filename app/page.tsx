@@ -76,7 +76,7 @@ export default function Home() {
               <th className="border px-2 py-1">직책</th>
               <th className="border px-2 py-1">이메일</th>            
               <th className="border px-2 py-1">활성 상태</th>
-              <th className="border px-2 py-1">상세</th>
+              <th className="border px-2 py-1">상세 보기</th>
               <th className="border px-2 py-1">삭제</th>
             </tr>
           </thead>

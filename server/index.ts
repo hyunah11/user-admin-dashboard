@@ -107,5 +107,5 @@ app.delete('/users/:id', async (req: Request<{ id: string }>, res: Response) => 
 
 
 app.listen(PORT, () => {
-  console.log(`==== Express 서버 실행 중: http://localhost:${PORT}`)
+  console.log(`==== Express 서버 실행 중: http://localhost:${PORT} ====`)
 })
