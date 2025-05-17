@@ -8,7 +8,7 @@ export const useDeleteUserMutation = () => {
     mutationFn: async (id: string) => {
       const toastId = toast.loading('삭제 중입니다...') // 로딩 토스트 먼저
       try {
-        const res = await fetch(`/api/users/${id}`, { method: 'DELETE' })
+        const res = await fetch(`/users/${id}`, { method: 'DELETE' }) //await fetch(`/api/users/${id}`, { method: 'DELETE' })
         if (!res.ok) throw new Error('삭제 실패')
 
         toast.update(toastId, {

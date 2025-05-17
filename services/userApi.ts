@@ -1,9 +1,9 @@
 import axios from 'axios'
 
 const api = axios.create({
-  baseURL: process.env.PUBLIC_API_BASE_URL,
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   headers: {
-    Authorization: process.env.AUTH_KEY ?? '',
+    Authorization: process.env.NEXT_PUBLIC_AUTH_KEY ?? '',
   },
 })
 

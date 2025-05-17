@@ -6,4 +6,6 @@ export type User = {
   job_rank: string
   position: string
   active: boolean
+  ip_address?: string
+  join_date?: string
 }

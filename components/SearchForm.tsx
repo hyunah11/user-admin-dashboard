@@ -1,76 +1,93 @@
 'use client'
 
+import { useRouter, useSearchParams } from 'next/navigation'
 import { useState } from 'react'
 
-type SearchParams = {
-  id?: string
-  name?: string
-  email?: string
-  active?: boolean
-}
+export default function SearchForm() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
-type Props = {
-  onSearch: (params: SearchParams) => void
-}
+  const [form, setForm] = useState({
+    id: '',
+    name: '',
+    email: '',
+    active: '',
+  })
 
-export default function SearchForm({ onSearch }: Props) {
-  const [id, setId] = useState('')
-  const [name, setName] = useState('')
-  const [email, setEmail] = useState('')
-  const [active, setActive] = useState<'all' | 'true' | 'false'>('all')
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const { name, value } = e.target
+    setForm((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    const query: SearchParams = {}
 
-    if (id.trim()) query.id = id.trim()
-    if (name.trim()) query.name = name.trim()
-    if (email.trim()) query.email = email.trim()
-    if (active !== 'all') query.active = active === 'true'
+    const params = new URLSearchParams()
+    params.set('page_index', '1') // 검색 시 항상 1페이지부터 시작
+    params.set('page_size', searchParams.get('page_size') || '10')
 
-    onSearch(query)
+    if (form.id) params.set('id', form.id)
+    if (form.name) params.set('name', form.name)
+    if (form.email) params.set('email', form.email)
+    if (form.active) params.set('active', form.active)
+
+    router.push(`/?${params.toString()}`)
   }
 
   const handleReset = () => {
-    setId('')
-    setName('')
-    setEmail('')
-    setActive('all')
-    onSearch({})
+    setForm({ id: '', name: '', email: '', active: '' })
+    router.push('/?page_index=1&page_size=10')
   }
 
   return (
-    <form onSubmit={handleSubmit} className="mb-4 p-4 border rounded space-y-3 w-fit">
-    <div className="grid grid-cols-2 gap-4">
-        <div className="flex items-center gap-2">
-            <label className="w-16">ID</label>
-            <input value={id} onChange={(e) => setId(e.target.value)} className="border px-2 py-1" />
-        </div>
-
-        <div className="flex items-center gap-2">
-            <label className="w-16">이름</label>
-            <input value={name} onChange={(e) => setName(e.target.value)} className="border px-2 py-1" />
-        </div>
-
-        <div className="flex items-center gap-2">
-            <label className="w-16">이메일</label>
-            <input value={email} onChange={(e) => setEmail(e.target.value)} className="border px-2 py-1" />
-        </div>
-
-        <div className="flex items-center gap-2">
-            <label className="w-16">활성상태</label>
-            <select value={active} onChange={(e) => setActive(e.target.value as any)} className="border px-2 py-1">
-                <option value="all">전체</option>
-                <option value="true">활성</option>
-                <option value="false">비활성</option>
-            </select>
-        </div>
-    </div>
-    
-    <div className="flex gap-2 mt-4">
-        <button type="submit" className="bg-blue-500 text-white px-4 py-1 rounded">조회</button>
-        <button type="button" onClick={handleReset} className="bg-gray-300 px-4 py-1 rounded">초기화</button>
-    </div>
+    <form onSubmit={handleSubmit} className="flex flex-wrap gap-2 mb-4 items-end">
+      <input
+        type="text"
+        name="id"
+        value={form.id}
+        onChange={handleChange}
+        placeholder="ID"
+        className="border p-1 rounded"
+      />
+      <input
+        type="text"
+        name="name"
+        value={form.name}
+        onChange={handleChange}
+        placeholder="이름"
+        className="border p-1 rounded"
+      />
+      <input
+        type="text"
+        name="email"
+        value={form.email}
+        onChange={handleChange}
+        placeholder="Email"
+        className="border p-1 rounded"
+      />
+      <select
+        name="active"
+        value={form.active}
+        onChange={handleChange}
+        className="border p-1 rounded"
+      >
+        <option value="">전체</option>
+        <option value="true">활성</option>
+        <option value="false">비활성</option>
+      </select>
+      <button
+        type="submit"
+        className="bg-blue-600 text-white px-4 py-1 rounded hover:bg-blue-700"
+      >
+        검색
+      </button>
+      <button
+        type="button"
+        onClick={handleReset}
+        className="bg-gray-300 text-black px-3 py-1 rounded hover:bg-gray-400"
+      >
+        초기화
+      </button>
     </form>
   )
 }
