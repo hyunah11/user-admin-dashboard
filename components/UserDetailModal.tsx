@@ -154,13 +154,18 @@ export default function UserDetailModal({ userId, onClose }: Props) {
           <div className="flex gap-2 items-center">
             <label className="w-20">활성화</label>
             <select
-              name="active"
-              value={String(editedUser.active)}
-              onChange={handleChange}
-              className="border px-2 py-1 w-full"
+            name="active"
+            value={String(editedUser.active)}
+            onChange={(e) =>
+                setEditedUser((prev) => ({
+                ...prev,
+                active: Boolean(e.target.value),
+                }))
+            }
+            className="border px-2 py-1 w-full"
             >
-              <option value="true">활성</option>
-              <option value="false">비활성</option>
+            <option value="1">활성</option>
+            <option value="0">비활성</option>
             </select>
           </div>
         </div>

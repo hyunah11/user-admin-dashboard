@@ -3,18 +3,19 @@
 import { useSearchParams, useRouter } from 'next/navigation'
 
 type Props = {
+  pageIndex: number
+  pageSize: number
   totalCount: number
+  onChangePage: (newPage: number) => void
+  onChangePageSize: (newSize: number) => void
 }
 
-export default function Pagination({ totalCount }: Props) {
+export default function Pagination({ pageIndex, pageSize, totalCount, onChangePage, onChangePageSize }: Props) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  const pageSize = parseInt(searchParams.get('page_size') || '10', 10)
-  const pageIndex = parseInt(searchParams.get('page_index') || '1', 10)
   const totalPages = Math.ceil(totalCount / pageSize)
-
-  if (totalPages <= 1) return null
+  if (totalPages <= 0) return null
 
   const setParams = (nextPage: number, nextSize?: number) => {
     const params = new URLSearchParams(searchParams.toString())

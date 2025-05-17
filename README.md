@@ -18,7 +18,7 @@ React + Next.js + Express 기반의 사용자 관리 대시보드입니다.
 NEXT_PUBLIC_BACKEND_URL=http://localhost:8000
 ```
 
-### `.env.local`
+### `.env.server`
 ```bash
 API_BASE_URL=https://...
 AUTH_KEY=YOUR_AUTH_KEY
@@ -31,6 +31,8 @@ git clone https://github.com/hyunah11/user-admin-dashboard.git
 npm install
 npm run dev:all
 ```
+#### npm run dev:all
+- `npm run server, npm run dev 두 명령어를 병렬로 실행합니다.`   
 
 ## 주요 폴더 구조
 

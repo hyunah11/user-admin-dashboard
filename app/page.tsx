@@ -1,6 +1,6 @@
 'use client'
 
-import { useSearchParams } from 'next/navigation'
+import { useSearchParams, useRouter  } from 'next/navigation'
 import { useState, useMemo } from 'react'
 import { User } from '@/types/user'
 import Skeleton from 'react-loading-skeleton'
@@ -13,6 +13,8 @@ import Pagination from '@/components/Pagination'
 import UserDetailModal from '@/components/UserDetailModal'
 
 export default function Home() {
+  const router = useRouter()
+
   const searchParams = useSearchParams()
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null)
 
@@ -33,9 +35,9 @@ export default function Home() {
   const deleteMutation = useDeleteUserMutation()
 
   const handleDelete = (id: string) => {
-  if (confirm(`정말 삭제하시겠습니까?`)) {
-    deleteMutation.mutate(id)
-  }
+    if (confirm(`정말 삭제하시겠습니까?`)) {
+      deleteMutation.mutate(id)
+    }
   }
 
   return (
@@ -87,7 +89,9 @@ export default function Home() {
               <td className="p-2 border">{user.job_rank}</td>
               <td className="p-2 border">{user.position}</td>
               <td className="p-2 border">{user.email}</td>
-              <td className="p-2 border">{user.active ? 'Y' : 'N'}</td>
+              <td className="p-2 border">
+                {Number(user.active) === 1 ? 'Y' : 'N'}
+              </td>
               <td className="p-2 border">
                 <button className="text-blue-600 underline"
                   onClick={() => setSelectedUserId(user.id)}
@@ -107,7 +111,22 @@ export default function Home() {
           </tbody>
         </table>
 
-          <Pagination totalCount={data?.data?.total_count || 0} />
+       <Pagination
+          pageIndex={Number(queryParams.page_index)}
+          pageSize={Number(queryParams.page_size)}
+          totalCount={data?.data?.total_count || 0}
+          onChangePage={(newPage) => {
+            const params = new URLSearchParams(searchParams.toString())
+            params.set('page_index', newPage.toString())
+            router.push(`/?${params.toString()}`)
+          }}
+          onChangePageSize={(newSize) => {
+            const params = new URLSearchParams(searchParams.toString())
+            params.set('page_size', newSize.toString())
+            params.set('page_index', '1') // 페이지 크기 바뀌면 첫 페이지로
+            router.push(`/?${params.toString()}`)
+          }}
+      />
 
         </>
       )}
