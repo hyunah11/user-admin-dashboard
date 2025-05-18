@@ -22,7 +22,7 @@ export const useUpdateUserMutation = (onSuccess?: () => void) => {
     onSuccess: (_, user) => {
       queryClient.invalidateQueries({ queryKey: ['users'] })         // 리스트 갱신
       queryClient.invalidateQueries({ queryKey: ['user', user.id] }) // 상세 정보 갱신
-      onSuccess()
+      onSuccess?.()
     },
     onError: (err: any) => {
       console.error(err)

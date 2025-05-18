@@ -1,0 +1,12 @@
+<script>
+  window.nextDefineComponent = function(c) { return c; };
+  window.next = {
+    router: {
+      push: () => Promise.resolve(true),
+      replace: () => Promise.resolve(true),
+      prefetch: () => Promise.resolve(),
+      route: '/',
+      pathname: '/'
+    }
+  };
+</script> 

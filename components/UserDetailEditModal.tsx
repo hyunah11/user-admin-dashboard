@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import { useUserDetailQuery } from '@/hooks/useUserDetailQuery'
 import { useUpdateUserMutation } from '@/hooks/useUpdateUserMutation'
 import { User } from '@/types/user'
@@ -13,27 +13,31 @@ interface Props {
 }
 
 export default function UserDetailEditModal({ userId, onClose }: Props) {
-  //const { data: user, isLoading, isError, isSuccess } = useUserDetailQuery(userId)
+
   const [editedUser, setEditedUser] = useState<Partial<User>>({})
 
+  const queryResult = useUserDetailQuery(userId)
+
   const isStorybook = process.env.STORYBOOK === 'true'
-  const { data: user, isLoading, isError, isSuccess } = isStorybook
+
+  const user = useMemo(() => {
+  return isStorybook
     ? {
-        data: {
-          id: 'storybook-user',
-          name: '스토리북',
-          email: 'storybook@example.com',
-          job_rank: '과장',
-          position: '팀장',
-          active: true,
-          ip_address: '127.0.0.1',
-          join_date: '2025-05-18',
-        },
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
+        id: 'storybook-user',
+        name: '스토리북',
+        email: 'storybook@example.com',
+        job_rank: '과장',
+        position: '팀장',
+        active: true,
+        ip_address: '127.0.0.1',
+        join_date: '2025-05-18',
       }
-    : useUserDetailQuery(userId)
+    : queryResult.data
+}, [isStorybook, queryResult.data])
+
+  const isLoading = isStorybook ? false : queryResult.isLoading
+  const isError = isStorybook ? false : queryResult.isError
+  const isSuccess = isStorybook ? true : queryResult.isSuccess
 
   // 사용자 상세 조회 API 선행 - 응답 지연
   useEffect(() => {
@@ -45,7 +49,7 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
     }, 3000)
 
     return () => clearTimeout(timeout)
-  }, [isSuccess, isError])
+  }, [isSuccess, isError, onClose])
 
   // 사용자 상세 조회 API 선행 - 에러 발생
   useEffect(() => {
@@ -53,7 +57,7 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
       toast.error('사용자 정보를 불러올 수 없습니다.')
       onClose()
     }
-  }, [isError])
+  }, [isError, onClose])
 
   // 사용자 상세 조회 API 선행 - 로딩 완료
   useEffect(() => {
@@ -70,7 +74,7 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
         join_date: user.join_date,
       })
     }
-  }, [user?.id])
+  }, [user])
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -100,21 +104,20 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
   if (isError || !editedUser) return null
 
   return (
-    <Modal open={open} onClose={onClose}>
-      <Box
-        sx={{
+    <Modal open={true} onClose={onClose}>
+      <Box sx={{
           position: 'absolute',
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 480,
+          width: 380,
           bgcolor: 'background.paper',
           boxShadow: 24,
-          p: 4,
+          p: 3,
           borderRadius: 2,
         }}
       >
-        <Typography variant="h6" mb={3}>
+        <Typography variant="subtitle1" fontWeight={600} mb={2}>
           📝 사용자 수정
         </Typography>
 
@@ -124,6 +127,7 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
             value={editedUser.id || ''}
             disabled
             fullWidth
+            size="small"
           />
 
           <TextField
@@ -132,6 +136,7 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
             value={editedUser.name || ''}
             onChange={handleChange}
             fullWidth
+            size="small"
           />
 
           <TextField
@@ -140,6 +145,9 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
             value={editedUser.email || ''}
             onChange={handleChange}
             fullWidth
+            size="small"
+            type="email"
+            error={!editedUser.email?.includes('@')}
           />
 
           <TextField
@@ -148,6 +156,7 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
             value={editedUser.job_rank || ''}
             onChange={handleChange}
             fullWidth
+            size="small"
           />
 
           <TextField
@@ -156,6 +165,7 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
             value={editedUser.position || ''}
             onChange={handleChange}
             fullWidth
+            size="small"
           />
 
           <TextField
@@ -164,6 +174,7 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
             value={editedUser.ip_address || ''}
             onChange={handleChange}
             fullWidth
+            size="small"
           />
 
           <TextField
@@ -172,6 +183,8 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
             value={editedUser.join_date || ''}
             onChange={handleChange}
             fullWidth
+            size="small"
+            type="date"
           />
 
           <Select
@@ -185,6 +198,7 @@ export default function UserDetailEditModal({ userId, onClose }: Props) {
               }))
             }}
             fullWidth
+            size="small"
           >
             <MenuItem value="1">활성</MenuItem>
             <MenuItem value="0">비활성</MenuItem>

@@ -1,5 +1,5 @@
 export type User = {
-  seq_no: string
+  seq_no?: string
   id: string
   name: string
   email: string

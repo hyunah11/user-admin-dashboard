@@ -10,7 +10,7 @@ export const useUserListQuery = (params: any) => {
       if (!query) {
         throw new Error('유효하지 않은 사용자 목록 요청입니다.')
       }
-      console.log('쿼리:', query)
+      
       const res = await fetch(`/users?${query}`, {
         method: 'GET',
       })

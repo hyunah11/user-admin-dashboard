@@ -1,4 +1,5 @@
 import type { StorybookConfig } from '@storybook/nextjs';
+import path from 'path';
 
 const config: StorybookConfig = {
   "stories": [
@@ -14,6 +15,16 @@ const config: StorybookConfig = {
     "name": "@storybook/nextjs",
     "options": {}
   },
-  staticDirs: ['../public']
+  staticDirs: ['../public'],
+  webpackFinal: async (config) => {
+    if (config.resolve) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        '@': path.resolve(__dirname, '..'),
+        'next-router-mock': path.resolve(__dirname, '../node_modules/next-router-mock'),
+      }
+    }
+    return config;
+  },
 };
 export default config;

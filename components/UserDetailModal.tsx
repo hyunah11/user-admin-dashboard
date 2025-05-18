@@ -1,10 +1,9 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useUserDetailQuery } from '@/hooks/useUserDetailQuery'
-import { User } from '@/types/user'
 import { toast } from 'react-toastify'
-import { Box, Button, Modal, Typography, Divider } from '@mui/material'
+import { Box, Button, Modal, Typography } from '@mui/material'
 
 interface Props {
   userId: string
@@ -12,27 +11,26 @@ interface Props {
 }
 
 export default function UserDetailModal({ userId, onClose }: Props) {
-  //const { data: user, isLoading, isError, isSuccess } = useUserDetailQuery(userId)
-  const [editedUser, setEditedUser] = useState<Partial<User>>({})
+
+  const queryResult = useUserDetailQuery(userId)
 
   const isStorybook = process.env.STORYBOOK === 'true'
-  const { data: user, isLoading, isError, isSuccess } = isStorybook
+  const user = isStorybook
     ? {
-        data: {
-          id: 'storybook-user',
-          name: '스토리북',
-          email: 'storybook@example.com',
-          job_rank: '과장',
-          position: '팀장',
-          active: true,
-          ip_address: '127.0.0.1',
-          join_date: '2025-05-18',
-        },
-        isLoading: false,
-        isError: false,
-        isSuccess: true,
+        id: 'storybook-user',
+        name: '스토리북',
+        email: 'storybook@example.com',
+        job_rank: '과장',
+        position: '팀장',
+        active: true,
+        ip_address: '127.0.0.1',
+        join_date: '2025-05-18',
       }
-    : useUserDetailQuery(userId)
+    : queryResult.data
+
+  const isLoading = isStorybook ? false : queryResult.isLoading
+  const isError = isStorybook ? false : queryResult.isError
+  const isSuccess = isStorybook ? true : queryResult.isSuccess
 
   // 사용자 상세 조회 API - 응답 지연
   useEffect(() => {
@@ -44,7 +42,7 @@ export default function UserDetailModal({ userId, onClose }: Props) {
     }, 3000)
 
     return () => clearTimeout(timeout)
-  }, [isSuccess, isError])
+  }, [isSuccess, isError, onClose])
 
   // 사용자 상세 조회 API - 에러 발생
   useEffect(() => {
@@ -52,38 +50,9 @@ export default function UserDetailModal({ userId, onClose }: Props) {
       toast.error('사용자 정보를 불러올 수 없습니다.')
       onClose()
     }
-  }, [isError])
-
-  // 사용자 상세 조회 API - 로딩 완료
-  useEffect(() => {
-    if (user?.id) {
-      console.log('user 로딩 완료:', user)
-      setEditedUser({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        job_rank: user.job_rank,
-        position: user.position,
-        active: user.active,
-        ip_address: user.ip_address,
-        join_date: user.join_date,
-      })
-    }
-  }, [user?.id])
+  }, [isError, onClose])
 
   if (isLoading || isError || !user) return null
-
-  const displayField = (label: string, value?: string | boolean) => (
-    <Box display="flex" flexDirection="column" gap={0.5}>
-      <Typography variant="body2" color="textSecondary">
-        {label}
-      </Typography>
-      <Typography variant="body1" fontWeight={500}>
-        {String(value ?? '-')}
-      </Typography>
-      <Divider sx={{ my: 1 }} />
-    </Box>
-  )
 
   return (
     <Modal open={true} onClose={onClose}>
@@ -93,28 +62,37 @@ export default function UserDetailModal({ userId, onClose }: Props) {
           top: '50%',
           left: '50%',
           transform: 'translate(-50%, -50%)',
-          width: 600,
-          maxHeight: '80vh',
-          overflowY: 'auto',
+          width: 320,
           bgcolor: 'background.paper',
           boxShadow: 24,
-          p: 4,
           borderRadius: 2,
+          p: 3,
         }}
       >
         <Typography variant="h6" mb={3}>
           🔎 사용자 상세 정보
         </Typography>
 
-        <Box display="flex" flexDirection="column" gap={1}>
-          {displayField('ID', user.id)}
-          {displayField('이름', user.name)}
-          {displayField('이메일', user.email)}
-          {displayField('직급', user.job_rank)}
-          {displayField('직책', user.position)}
-          {displayField('IP 주소', user.ip_address)}
-          {displayField('가입일', user.join_date)}
-          {displayField('활성화', user.active ? 'Y' : 'N')}
+        <Box display="flex" flexDirection="column" gap={1.5}>
+          {[
+            ['ID', user.id],
+            ['이름', user.name],
+            ['이메일', user.email],
+            ['직급', user.job_rank],
+            ['직책', user.position],
+            ['IP 주소', user.ip_address],
+            ['가입일', user.join_date],
+            ['활성화', user.active ? 'Y' : 'N'],
+          ].map(([label, value]) => (
+            <Box key={label} display="flex" justifyContent="space-between">
+              <Typography variant="body2" color="textSecondary">
+                {label}
+              </Typography>
+              <Typography variant="body2" fontWeight="medium">
+                {value}
+              </Typography>
+            </Box>
+          ))}
         </Box>
 
         <Box display="flex" justifyContent="flex-end" mt={4}>
