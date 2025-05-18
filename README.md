@@ -42,7 +42,6 @@ user-admin-dashboard/
 ├── .storybook/              # Storybook 설정
 ├── app/
 │   ├── page.tsx             # 사용자 목록 페이지
-│   └── api/users/           # Next.js API Routes (현재 사용 X)
 ├── components/              # UI 컴포넌트
 ├── hooks/                   # React Query 관련 훅
 ├── mock/                    # 사용자 mock 데이터 users.json
