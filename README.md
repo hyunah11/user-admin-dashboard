@@ -40,8 +40,7 @@ npm run dev:all
 ```bash
 user-admin-dashboard/
 ├── .storybook/              # Storybook 설정
-├── app/
-│   ├── page.tsx             # 사용자 목록 페이지
+├── app/                     # Next.js App Router 폴더
 ├── components/              # UI 컴포넌트
 ├── hooks/                   # React Query 관련 훅
 ├── mock/                    # 사용자 mock 데이터 users.json
@@ -167,6 +166,7 @@ user-admin-dashboard/
 
 ## Storybook 📘
 - UI 컴포넌트 개발, 테스트 환경 구축
+- `next-router-mock`을 사용하여 App Router 기반 컴포넌트도 테스트 가능하도록 설정
 - 실행: `npm run storybook`
 
 <br>
